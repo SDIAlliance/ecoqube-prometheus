@@ -2,12 +2,14 @@
 
 ## Architecture
 
-The ECOQUBE infrastructure consists of several components for each environment
+The ECOQUBE infrastructure consists of several components for each environment:
 
 * AWS VPC, Subnets, etc.
 * EKS Kubernetes Cluster
 * ASG for Kubernetes worker nodes
 * EFS & S3
+
+The environment is hosted in AWS Region eu-central-1 (Frankfurt)
 
 ## Deployment
 
@@ -17,7 +19,12 @@ All AWS resources and Kubernetes services are deployed using Github Actions.
 * `kubectl` is used to deploy all Kubernetes system services
 * `helm` is used to deploy Thanos and Grafana
 
-## Configuration
+## Data Persistence
+
+Thanos uses an S3 bucket for long term durable data storage
+Kubernetes persistent volume claims are stored on EFS
+
+## Configuration & Operation
 
 ### Github Actions
 
@@ -41,7 +48,7 @@ Terraform variables are defined in `tf/config/<ENV>.tfvars`
 Kubernetes templates can be found in `k8s/`
 All YAML files with suffix `_envsubst` are processed with the `envsubst` utility to substitute environment variables set at build time!
 
-### Helm
+### Thanos & Grafana (Helm)
 
 Helm config files for Thanos and Grafana can be found in `ecoqube/`
 All YAML files with suffix `_envsubst` are processed with the `envsubst` utility to substitute environment variables set at build time!
@@ -50,17 +57,14 @@ To configure the Thanos data source in Grafana check the procedure as described 
 
 The password for the Grafana `admin` user should be defined as a SecureString SSM Parameter named: `/ecoqube/<ENV>/env/grafana_admin_password`
 
-## Data Persistence
+The whitelist can be configured through the option `alb.ingress.kubernetes.io/inbound-cidrs` in the Helm config files
 
-Thanos uses an S3 bucket for long term durable data storage
-Kubernetes persistent volume claims are stored on EFS
-
-## Ingress
+### Ingress
 
 External ingress is configured using the `AWS Load Balancer Controller` in Kubernetes: https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.2/guide/ingress/annotations/
 The settings can be found in the Helm configuration files for Thanos and Grafana mentioned above
 
-## Kubernetes Cluster Access
+### Kubernetes Cluster Access
 
 The `kubectl` config required to access the cluster can be configured by the `scripts/kr.sh` script.
 
