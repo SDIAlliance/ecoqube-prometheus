@@ -1,0 +1,88 @@
+# .github/workflows/aws_deployment.yaml
+name: deploy-to-aws
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      # General setup
+      ###############
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - uses: hashicorp/setup-terraform@v1
+
+      - run: sleep 5
+
+      - name: Configure AWS
+        run: |
+          AWS_ACCOUNT_ID=281741148394
+          export AWS_ROLE_ARN=arn:aws:iam::$AWS_ACCOUNT_ID:role/ecoqube-github-integration-role
+          export AWS_WEB_IDENTITY_TOKEN_FILE=/tmp/awscreds
+          export AWS_DEFAULT_REGION=eu-central-1
+
+          echo AWS_ACCOUNT_ID=$AWS_ACCOUNT_ID >> $GITHUB_ENV
+          echo AWS_WEB_IDENTITY_TOKEN_FILE=$AWS_WEB_IDENTITY_TOKEN_FILE >> $GITHUB_ENV
+          echo AWS_ROLE_ARN=$AWS_ROLE_ARN >> $GITHUB_ENV
+          echo AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION >> $GITHUB_ENV
+
+          curl --silent -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL" | jq -r '.value' > $AWS_WEB_IDENTITY_TOKEN_FILE
+
+          cat $AWS_WEB_IDENTITY_TOKEN_FILE
+
+      # Configure DEV env
+      ###################
+      - name: Configure Terraform env
+        run: |
+          PROJECT=ecoqube
+          TARGET_ENV=dev
+          KUBERNETES_VERSION=$(grep kubernetes_version tf/config/$TARGET_ENV.tfvars | awk -F '"' '{print $2}')
+          EKS_AMI_ID=$(aws ssm get-parameters --region eu-central-1 --name /aws/service/eks/optimized-ami/${KUBERNETES_VERSION}/amazon-linux-2/recommended/image_id --query Parameters[0].Value --output text)
+          echo "TF_IN_AUTOMATION=1" >> $GITHUB_ENV
+          echo "PROJECT=$PROJECT" >> $GITHUB_ENV
+          echo "TARGET_ENV=$TARGET_ENV" >> $GITHUB_ENV
+          echo "KUBERNETES_VERSION=$KUBERNETES_VERSION" >> $GITHUB_ENV
+          echo "EKS_AMI_ID=$EKS_AMI_ID" >> $GITHUB_ENV
+
+      - name: Run Terraform init
+        run: |
+          cd tf/templates
+          terraform init -input=false
+          # Set workspace for this step
+          export TF_WORKSPACE=$TARGET_ENV
+          # Set workspace for next steps
+          echo "TF_WORKSPACE=$TF_WORKSPACE" >> $GITHUB_ENV
+          terraform workspace list | grep "\<$TF_WORKSPACE\>" || terraform workspace new $TF_WORKSPACE
+          terraform init -input=false
+
+      - name: Run Terraform plan
+        id: plan
+        run: |
+          cd tf/templates
+          terraform plan -no-color -out=tfplan -input=false -var image_id=$EKS_AMI_ID -var kubernetes_version=$KUBERNETES_VERSION -var-file=../config/$TARGET_ENV.tfvars
+
+      - name: Run Terraform apply
+        timeout-minutes: 60
+        id: apply
+        run: |
+          cd tf/templates
+          terraform apply -input=false -auto-approve tfplan
+          # UNCOMMENTING THE LINE BELOW _WILL_ DESTROY YOUR INFRASTRUCTURE!
+          # terraform destroy -input=false -auto-approve -var image_id=$EKS_AMI_ID -var kubernetes_version=$KUBERNETES_VERSION -var-file=../config/$TARGET_ENV.tfvars
+
+      - name: Configure EKS Cluster
+        timeout-minutes: 30
+        run: |
+          ./scripts/configure_cluster.sh
+
+      # - name: Deploy Ecoqube components
+      #   timeout-minutes: 30
+      #   run: |
+      #     ./scripts/configure_ecoqube.sh

@@ -1,0 +1,52 @@
+# IAM / RBAC Mappings
+#############################
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: aws-auth
+  namespace: kube-system
+data:
+  mapRoles: |
+    - rolearn: arn:aws:iam::${AWS_ACCOUNT_ID}:role/ecoqube-${TARGET_ENV}-eks-node-role
+      username: system:node:{{EC2PrivateDNSName}}
+      groups:
+        - system:bootstrappers
+        - system:nodes
+    - rolearn: arn:aws:iam::${AWS_ACCOUNT_ID}:role/ecoqube-${TARGET_ENV}-eks-master-role
+      username: eks-master
+      groups:
+        - system:masters
+    - rolearn: arn:aws:iam::${AWS_ACCOUNT_ID}:role/ecoqube-${TARGET_ENV}-eks-developer-role
+      username: eks-developer
+    - rolearn: arn:aws:iam::${AWS_ACCOUNT_ID}:role/ecoqube-${TARGET_ENV}-eks-deployment-role
+      username: eks-master
+      groups:
+        - system:masters
+
+# eks-developer role
+####################
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: eks-developer
+rules:
+  - apiGroups: [""]
+    resources: ["*"]
+    verbs: ["get", "watch", "list", "describe"]
+  - apiGroups: [""]
+    resources: ["namespaces"]
+    verbs: ["get", "watch", "list", "describe", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: eks-developer
+subjects:
+  - kind: User
+    name: eks-developer
+    apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: ClusterRole
+  name: eks-developer
+  apiGroup: rbac.authorization.k8s.io

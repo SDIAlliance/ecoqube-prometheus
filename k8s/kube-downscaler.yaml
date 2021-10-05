@@ -1,0 +1,132 @@
+# Source: https://github.com/hjacobs/kube-downscaler/tree/master/deploy
+# ---
+# apiVersion: v1
+# kind: ConfigMap
+# metadata:
+#   namespace: core-system
+#   name: kube-downscaler
+# data:
+#   # downscale for non-work hours
+#   DEFAULT_UPTIME: "Mon-Fri 07:30-20:30 CET"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: core-system
+  labels:
+    application: kube-downscaler
+    version: v20.5.0
+  name: kube-downscaler
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      application: kube-downscaler
+  template:
+    metadata:
+      labels:
+        application: kube-downscaler
+        version: v20.5.0
+    spec:
+      serviceAccountName: kube-downscaler
+      containers:
+        - name: downscaler
+          # see https://github.com/hjacobs/kube-downscaler/releases
+          image: hjacobs/kube-downscaler:20.5.0
+          args:
+            # dry run by default, remove to perform downscaling
+            # - --dry-run
+            # run every minute
+            - --interval=60
+            - --deployment-time-annotation=deployment-time
+          envFrom:
+            - configMapRef:
+                name: kube-downscaler
+                optional: true
+          resources:
+            limits:
+              memory: 100Mi
+            requests:
+              cpu: 5m
+              memory: 100Mi
+          securityContext:
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 1000
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  namespace: core-system
+  name: kube-downscaler
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  namespace: core-system
+  name: kube-downscaler
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+      - namespaces
+    verbs:
+      - get
+      - watch
+      - list
+  - apiGroups:
+      - apps
+    resources:
+      - deployments
+      - statefulsets
+    verbs:
+      - get
+      - watch
+      - list
+      - update
+      - patch
+  - apiGroups:
+      - autoscaling
+    resources:
+      - horizontalpodautoscalers
+    verbs:
+      - get
+      - watch
+      - list
+      - update
+      - patch
+  - apiGroups:
+      - batch
+    resources:
+      - cronjobs
+    verbs:
+      - get
+      - watch
+      - list
+      - update
+      - patch
+  - apiGroups:
+      - zalando.org
+    resources:
+      - stacks
+    verbs:
+      - get
+      - watch
+      - list
+      - update
+      - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  namespace: core-system
+  name: kube-downscaler
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: kube-downscaler
+subjects:
+  - kind: ServiceAccount
+    name: kube-downscaler
+    namespace: core-system

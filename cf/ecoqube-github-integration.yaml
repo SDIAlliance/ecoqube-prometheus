@@ -1,0 +1,164 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: ecoqube-github-integration
+
+# Parameters
+############
+Parameters:
+  Project:
+    Type: String
+    Default: ecoqube
+  RepoName:
+    Type: String
+    Default: SDIAlliance/ecoqube-prometheus
+
+# Resources
+###########
+Resources:
+
+  # Github Role & OIDC
+  ####################
+  Role:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: ecoqube-github-integration-role
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Action: sts:AssumeRoleWithWebIdentity
+            Principal:
+              Federated:
+                Ref: GithubOidc
+            Condition:
+              StringLike:
+                vstoken.actions.githubusercontent.com:sub:
+                  Fn::Sub: repo:${RepoName}:*
+          - Effect: Allow
+            Principal:
+              AWS:
+                - arn:aws:iam::591990815822:role/Access9apps-AdministratorRole-I8U6G3HQU2VA
+            Action:
+              - sts:AssumeRole
+      Policies:
+        - PolicyName: ecoqube-prometheus-github-integration-policy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              # Get AWS parameters
+              - Effect: Allow
+                Action:
+                  - ssm:DescribeParameters
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - ssm:Get*
+                Resource:
+                  - Fn::Sub: arn:aws:ssm:${AWS::Region}::parameter/aws/*
+              - Effect: Allow
+                Action:
+                  - ssm:*
+                Resource:
+                  - Fn::Sub: arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Project}/*
+              # Terraform: state
+              - Effect: Allow
+                Action:
+                  - s3:PutObject*
+                  - s3:GetObject*
+                  - s3:ListBucket
+                Resource:
+                  - Fn::Sub: arn:aws:s3:::${TerraformStateBucket}/*
+                  - Fn::Sub: arn:aws:s3:::${TerraformStateBucket}
+              - Effect: Allow
+                Action:
+                  - dynamodb:GetItem
+                  - dynamodb:PutItem
+                  - dynamodb:DeleteItem
+                Resource:
+                  - Fn::GetAtt: TerraformStateLockTable.Arn
+              # Manage IAM roles
+              - Action:
+                  - iam:*
+                Effect: Allow
+                Resource:
+                  - Fn::Sub: arn:aws:iam::${AWS::AccountId}:role/${Project}-*
+                  - Fn::Sub: arn:aws:iam::${AWS::AccountId}:policy/${Project}-*
+                  - Fn::Sub: arn:aws:iam::${AWS::AccountId}:instance-profile/${Project}-*
+              # Manage OIDC provider for EKS
+              - Action:
+                  - iam:CreateOpenIDConnectProvider
+                  - iam:DeleteOpenIDConnectProvider
+                  - iam:GetOpenIDConnectProvider
+                Effect: Allow
+                Resource:
+                  - "*"
+              - Effect: Allow
+                Action:
+                  # Logs
+                  - logs:CreateLogGroup
+                  - logs:DeleteLogGroup
+                  - logs:PutRetentionPolicy
+                  - logs:Describe*
+                  - logs:List*
+                  # EC2
+                  - ec2:*
+                  - autoscaling:*
+                  # EKS
+                  - eks:*
+                  # EFS
+                  - elasticfilesystem:*
+                Resource:
+                  - "*"
+              # S3
+              - Effect: Allow
+                Action:
+                  - s3:*
+                Resource:
+                  - Fn::Sub: arn:aws:s3:::${Project}*/*
+                  - Fn::Sub: arn:aws:s3:::${Project}*
+
+  GithubOidc:
+    Type: AWS::IAM::OIDCProvider
+    Properties:
+      Url: https://vstoken.actions.githubusercontent.com
+      ThumbprintList: [a031c46782e6e6c662c2c87c76da9aa62ccabd8e]
+      ClientIdList:
+        - Fn::Sub: https://github.com/${RepoName}
+
+  # Terraform State Bucket
+  ########################
+  TerraformStateBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName:
+        Fn::Sub: ${Project}-tf-state-bucket
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      VersioningConfiguration:
+        Status: Enabled
+      Tags:
+        - Key: name
+          Value:
+            Fn::Sub: ${Project}-tf-state
+
+  # Terraform State Lock Table
+  ############################
+  TerraformStateLockTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: LockID
+          AttributeType: S
+      KeySchema:
+        - AttributeName: LockID
+          KeyType: HASH
+      TableName:
+        Fn::Sub: ${Project}-tf-state-lock-table
+      BillingMode: PAY_PER_REQUEST
+
+# Outputs
+#########
+Outputs:
+  Role:
+    Value:
+      Fn::GetAtt: Role.Arn

@@ -1,0 +1,7 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ecoqube-${TARGET_ENV}
+  labels:
+    name: ecoqube-${TARGET_ENV}

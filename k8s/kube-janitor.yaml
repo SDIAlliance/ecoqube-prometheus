@@ -1,0 +1,98 @@
+# https://codeberg.org/hjacobs/kube-janitor
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    application: kube-janitor
+    version: v20.10.0
+  name: kube-janitor
+  namespace: core-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      application: kube-janitor
+  template:
+    metadata:
+      labels:
+        application: kube-janitor
+        version: v20.10.0
+    spec:
+      serviceAccountName: kube-janitor
+      containers:
+      - name: janitor
+        # see https://github.com/hjacobs/kube-janitor/releases
+        image: hjacobs/kube-janitor:20.10.0
+        args:
+          # run every minute
+          - --interval=60
+          - --exclude-namespaces=kube-system,core-system
+          - --deployment-time-annotation=deployment-time
+        resources:
+          limits:
+            memory: 100Mi
+          requests:
+            cpu: 5m
+            memory: 100Mi
+        securityContext:
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 1000
+        volumeMounts:
+          - name: config-volume
+            mountPath: /config
+      volumes:
+      - name: config-volume
+        configMap:
+          name: kube-janitor
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kube-janitor
+  namespace: core-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: kube-janitor
+  namespace: core-system
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - create
+- apiGroups:
+  - "*"
+  resources:
+  - "*"
+  verbs:
+  - get
+  - watch
+  - list
+  - delete
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: kube-janitor
+  namespace: core-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: kube-janitor
+subjects:
+- kind: ServiceAccount
+  name: kube-janitor
+  # change the namespace name below if you want to deploy to a different namespace
+  namespace: core-system
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kube-janitor
+  namespace: core-system
