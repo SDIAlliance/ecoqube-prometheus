@@ -37,12 +37,12 @@ jobs:
 
           cat $AWS_WEB_IDENTITY_TOKEN_FILE
 
-      # Configure DEV env
+      # Configure PRD env
       ###################
       - name: Configure Terraform env
         run: |
           PROJECT=ecoqube
-          TARGET_ENV=dev
+          TARGET_ENV=prd
           KUBERNETES_VERSION=$(grep kubernetes_version tf/config/$TARGET_ENV.tfvars | awk -F '"' '{print $2}')
           EKS_AMI_ID=$(aws ssm get-parameters --region eu-central-1 --name /aws/service/eks/optimized-ami/${KUBERNETES_VERSION}/amazon-linux-2/recommended/image_id --query Parameters[0].Value --output text)
           echo "TF_IN_AUTOMATION=1" >> $GITHUB_ENV
