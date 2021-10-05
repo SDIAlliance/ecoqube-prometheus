@@ -54,7 +54,9 @@ All YAML files with suffix `_envsubst` are processed with the `envsubst` utility
 ### Thanos & Grafana (Helm)
 
 Thanos and Grafana are installed using the Bitnami Helm charts:
+
 https://github.com/bitnami/charts/tree/master/bitnami/thanos
+
 https://github.com/bitnami/charts/tree/master/bitnami/grafana
 
 Helm config files for Thanos and Grafana can be found in `ecoqube/`
