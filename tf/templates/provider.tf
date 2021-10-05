@@ -1,6 +1,7 @@
 variable "workspace_iam_roles" {
   default = {
-    dev = "arn:aws:iam::281741148394:role/ecoqube-github-integration-role"
+    dev = "arn:aws:iam::591990815822:role/ecoqube-github-integration-role"
+    prd = "arn:aws:iam::591990815822:role/ecoqube-github-integration-role"
   }
 }
 
