@@ -82,7 +82,7 @@ jobs:
         run: |
           ./scripts/configure_cluster.sh
 
-      # - name: Deploy Ecoqube components
-      #   timeout-minutes: 30
-      #   run: |
-      #     ./scripts/configure_ecoqube.sh
+      - name: Deploy Ecoqube components
+        timeout-minutes: 30
+        run: |
+          ./scripts/configure_ecoqube.sh
