@@ -426,7 +426,7 @@ ingress:
   apiVersion: ""
   ## @param ingress.hostname When the ingress is enabled, a host pointing to this will be created
   ##
-  hostname: ecoqube-grafana.sandbox-dev.9apps.cloud
+  hostname: ${GRAFANA_HOSTNAME}
   ## @param ingress.path Default path for the ingress resource
   ## The Path to Grafana. You may need to set this to '/*' in order to use this with ALB ingress controllers.
   ##
@@ -445,7 +445,8 @@ ingress:
     alb.ingress.kubernetes.io/tags: Project=ecoqube-thanos,Env=${TARGET_ENV}
     alb.ingress.kubernetes.io/inbound-cidrs: 45.138.228.108/32, 10.0.0.0/8
     alb.ingress.kubernetes.io/success-codes: "302"
-    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:eu-central-1:281741148394:certificate/fa593bab-3f74-42af-b149-706ba5e71289
+    alb.ingress.kubernetes.io/certificate-arn: ${GRAFANA_ACM_CERT_ARN}
+    external-dns.alpha.kubernetes.io/hostname: ${GRAFANA_HOSTNAME}
     # alb.ingress.kubernetes.io/healthcheck-path: /-/healthy
     # alb.ingress.kubernetes.io/healthcheck-port: 10902
   ## @param ingress.tls Enable TLS configuration for the hostname defined at ingress.hostname parameter

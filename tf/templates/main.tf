@@ -53,5 +53,7 @@ module "eks" {
   vpc_id                           = module.vpc.vpc_id
   public_subnets                   = module.vpc.public_subnets
   private_subnets                  = module.vpc.private_subnets
+  grafana_hostname                 = var.grafana_hostname
+  thanos_hostname                  = var.thanos_hostname
 }
 

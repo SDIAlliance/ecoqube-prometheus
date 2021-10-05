@@ -5,3 +5,5 @@ enable_eks_addons                 = true  # Should be set to false when initiall
 aws_eks_addon_version_kube_proxy  = "v1.21.2-eksbuild.2"
 aws_eks_addon_version_coredns     = "v1.8.4-eksbuild.1"
 aws_eks_addon_version_vpc_cni     = "v1.9.1-eksbuild.1"
+grafana_hostname                  = "grafana-dev.eco-qube.eu"
+thanos_hostname                   = "thanos-dev.eco-qube.eu"

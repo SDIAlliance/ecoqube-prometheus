@@ -33,3 +33,10 @@ variable "aws_eks_addon_version_vpc_cni" {
   type = string
 }
 
+variable "grafana_hostname" {
+  type = string
+}
+
+variable "thanos_hostname" {
+  type = string
+}

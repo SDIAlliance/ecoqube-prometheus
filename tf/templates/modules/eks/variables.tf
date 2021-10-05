@@ -66,3 +66,12 @@ variable "public_subnets" {
 variable "private_subnets" {
   type = list(string)
 }
+
+variable "grafana_hostname" {
+  type = string
+}
+
+variable "thanos_hostname" {
+  type = string
+}
+

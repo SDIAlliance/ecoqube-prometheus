@@ -852,9 +852,68 @@ resource "aws_efs_mount_target" "efs_b" {
   security_groups = [aws_security_group.efs.id]
 }
 
+# ACM Certificates
+##################
+
+# Grafana
+resource "aws_acm_certificate" "grafana" {
+  domain_name       = "grafana.eco-qube.eu"
+  validation_method = "DNS"
+}
+
+resource "aws_route53_record" "grafana" {
+  for_each = {
+    for dvo in aws_acm_certificate.grafana.domain_validation_options : dvo.domain_name => {
+      name   = dvo.resource_record_name
+      record = dvo.resource_record_value
+      type   = dvo.resource_record_type
+    }
+  }
+
+  allow_overwrite = true
+  name            = each.value.name
+  records         = [each.value.record]
+  ttl             = 60
+  type            = each.value.type
+  zone_id         = "Z06397711Z24ZEBTADXG"
+}
+
+resource "aws_acm_certificate_validation" "grafana" {
+  certificate_arn         = aws_acm_certificate.grafana.arn
+  validation_record_fqdns = [for record in aws_route53_record.grafana : record.fqdn]
+}
+
+# Thanos
+resource "aws_acm_certificate" "thanos" {
+  domain_name       = "thanos.eco-qube.eu"
+  validation_method = "DNS"
+}
+
+resource "aws_route53_record" "thanos" {
+  for_each = {
+    for dvo in aws_acm_certificate.thanos.domain_validation_options : dvo.domain_name => {
+      name   = dvo.resource_record_name
+      record = dvo.resource_record_value
+      type   = dvo.resource_record_type
+    }
+  }
+
+  allow_overwrite = true
+  name            = each.value.name
+  records         = [each.value.record]
+  ttl             = 60
+  type            = each.value.type
+  zone_id         = "Z06397711Z24ZEBTADXG"
+}
+
+resource "aws_acm_certificate_validation" "thanos" {
+  certificate_arn         = aws_acm_certificate.thanos.arn
+  validation_record_fqdns = [for record in aws_route53_record.thanos : record.fqdn]
+}
+
 
 ############################################################################################################
-# EFS
+# SSM Outputs
 ############################################################################################################
 resource "aws_ssm_parameter" "vpc_id" {
   name  = "/${var.project}/${var.env}/env/vpc_id"
@@ -890,4 +949,16 @@ resource "aws_ssm_parameter" "efs_id" {
   name  = "/${var.project}/${var.env}/env/efs_id"
   type  = "String"
   value = aws_efs_file_system.efs.id
+}
+
+resource "aws_ssm_parameter" "grafana_acm_cert_arn" {
+  name  = "/${var.project}/${var.env}/env/grafana_acm_cert_arn"
+  type  = "String"
+  value = aws_acm_certificate.grafana.arn
+}
+
+resource "aws_ssm_parameter" "thanos_acm_cert_arn" {
+  name  = "/${var.project}/${var.env}/env/thanos_acm_cert_arn"
+  type  = "String"
+  value = aws_acm_certificate.thanos.arn
 }
