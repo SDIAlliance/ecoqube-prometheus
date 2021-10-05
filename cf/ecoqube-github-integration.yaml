@@ -105,6 +105,14 @@ Resources:
                   - eks:*
                   # EFS
                   - elasticfilesystem:*
+                  # ACM
+                  - acm:RequestCertificate
+                  - acm:Describe*
+                  - acm:List*
+                  - acm:DeleteCertificate
+                  - route53:ChangeResourceRecordSets
+                  - route53:List*
+                  - route53:GetHostedZone
                 Resource:
                   - "*"
               # S3
