@@ -12,7 +12,7 @@ data "aws_region" "current" {}
 # EKS Cluster Role
 ##################
 resource "aws_iam_role" "cluster" {
-  name = "${var.project}-${var.env}-eks-cluster-role"
+  name = "${var.project}-${var.env}-eks-cluster-controlplane-role"
 
   assume_role_policy = <<POLICY
 {
