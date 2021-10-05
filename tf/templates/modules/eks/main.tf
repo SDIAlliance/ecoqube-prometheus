@@ -116,6 +116,7 @@ resource "aws_eks_cluster" "cluster" {
   # Ensure that IAM Role permissions are created before and deleted after EKS Cluster handling.
   # Otherwise, EKS will not be able to properly delete EKS managed EC2 infrastructure such as Security Groups.
   depends_on = [
+    aws_iam_role.cluster,
     aws_iam_role_policy_attachment.cluster-AmazonEKSClusterPolicy,
     aws_iam_role_policy_attachment.cluster-AmazonEKSVPCResourceController,
     aws_cloudwatch_log_group.cluster
@@ -652,10 +653,10 @@ data "aws_iam_policy_document" "master_assume_role_policy" {
     principals {
       type = "AWS"
       identifiers = [
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/users-administrator-role",
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/users-poweruser-role",
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/users-readonly-role",
-        "arn:aws:iam::591990815822:role/Access9apps-AdministratorRole-I8U6G3HQU2VA"
+        # "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/users-administrator-role",
+        # "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/users-poweruser-role",
+        # "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/users-readonly-role",
+        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/Access9apps-AdministratorRole-I8U6G3HQU2VA"
       ]
     }
   }
@@ -700,10 +701,10 @@ data "aws_iam_policy_document" "developer_assume_role_policy" {
     principals {
       type = "AWS"
       identifiers = [
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/users-administrator-role",
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/users-poweruser-role",
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/users-readonly-role",
-        "arn:aws:iam::591990815822:role/Access9apps-AdministratorRole-I8U6G3HQU2VA"
+        # "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/users-administrator-role",
+        # "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/users-poweruser-role",
+        # "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/users-readonly-role",
+        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/Access9apps-AdministratorRole-I8U6G3HQU2VA"
       ]
     }
   }
