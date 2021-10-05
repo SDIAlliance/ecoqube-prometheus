@@ -655,7 +655,7 @@ data "aws_iam_policy_document" "master_assume_role_policy" {
         "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/users-administrator-role",
         "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/users-poweruser-role",
         "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/users-readonly-role",
-        "arn:aws:iam::281741148394:role/Access9apps-AdministratorRole-1G9BLZUU4Q0OO"
+        "arn:aws:iam::591990815822:role/Access9apps-AdministratorRole-I8U6G3HQU2VA"
       ]
     }
   }
@@ -703,7 +703,7 @@ data "aws_iam_policy_document" "developer_assume_role_policy" {
         "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/users-administrator-role",
         "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/users-poweruser-role",
         "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/users-readonly-role",
-        "arn:aws:iam::281741148394:role/Access9apps-AdministratorRole-1G9BLZUU4Q0OO"
+        "arn:aws:iam::591990815822:role/Access9apps-AdministratorRole-I8U6G3HQU2VA"
       ]
     }
   }
