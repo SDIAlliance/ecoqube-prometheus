@@ -21,15 +21,14 @@ All AWS resources and Kubernetes services are deployed using Github Actions.
 
 ## Data Persistence
 
-Thanos uses an S3 bucket for long term durable data storage. 
+Thanos uses an S3 bucket for long term durable data storage.  
 Kubernetes persistent volume claims are stored on EFS.
 
 ## Configuration & Operation
 
 ### Github Actions
 
-Github Actions are defined in `.github/workflows/aws_deployment.yaml`.
-
+Github Actions are defined in `.github/workflows/aws_deployment.yaml`.  
 Scripts used to configure Kubernetes, Thanos & Grafana are stored in `scripts/`
 
 #### Github & AWS Integration
@@ -38,7 +37,7 @@ Github uses federated OIDC auth to assume an IAM role in the SDIA AWS Account to
 
 The necessary IAM roles, S3 bucket and DynamoDB table are created through Cloudformation. The template can be found in `cf/`.
 
-Updates to the Cloudformation stack can be performed using the AWS cli, for example:
+Updates to the Cloudformation stack can be performed using the AWS cli, for example:  
 `aws cloudformation deploy --template ecoqube-github-integration.yaml --stack-name ecoqube-github-integration --capabilities CAPABILITY_NAMED_IAM --region eu-central-1`
 
 ### Terraform
@@ -47,16 +46,13 @@ Terraform variables are defined in `tf/config/<ENV>.tfvars`.
 
 ### Kubernetes
 
-Kubernetes templates can be found in `k8s/`.
-
+Kubernetes templates can be found in `k8s/`.  
 All YAML files with suffix `_envsubst` are processed with the `envsubst` utility to substitute environment variables set at build time!
 
 ### Thanos & Grafana (Helm)
 
-Thanos and Grafana are installed using the Bitnami Helm charts:
-
-https://github.com/bitnami/charts/tree/master/bitnami/thanos
-
+Thanos and Grafana are installed using the Bitnami Helm charts:  
+https://github.com/bitnami/charts/tree/master/bitnami/thanos    
 https://github.com/bitnami/charts/tree/master/bitnami/grafana
 
 Helm config files for Thanos and Grafana can be found in `ecoqube/`
