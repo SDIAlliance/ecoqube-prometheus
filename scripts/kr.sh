@@ -12,7 +12,7 @@ fi
 
 if [ $# -eq 0 ]
   then
-    env=dev
+    env=prd
   else
     env=$1; shift
 fi
