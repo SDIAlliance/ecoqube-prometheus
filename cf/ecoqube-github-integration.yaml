@@ -113,6 +113,7 @@ Resources:
                   - route53:ChangeResourceRecordSets
                   - route53:List*
                   - route53:GetHostedZone
+                  - route53:GetChange
                 Resource:
                   - "*"
               # S3
