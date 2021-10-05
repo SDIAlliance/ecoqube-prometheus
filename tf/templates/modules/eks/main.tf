@@ -243,7 +243,7 @@ resource "aws_iam_role" "aws_lb_controller_role" {
   name               = "${var.project}-${var.env}-eks-service-account-role-aws-lb-controller"
 }
 
-data "aws_iam_policy_document" "aws_lb_controller_policy_document" {
+data "aws_iam_policy_document" "aws_lb_controller_asg_policy_document" {
   statement {
     actions   = ["iam:CreateServiceLinkedRole", "ec2:Describe*", "ec2:GetCoipPoolUsage", "ec2:DescribeCoipPools", "ec2:CreateTags", "ec2:DeleteTags", "ec2:AuthorizeSecurityGroupIngress", "ec2:RevokeSecurityGroupIngress", "ec2:CreateSecurityGroup", "ec2:AuthorizeSecurityGroupIngress", "ec2:RevokeSecurityGroupIngress", "ec2:DeleteSecurityGroup", "elasticloadbalancing:*", "cognito-idp:DescribeUserPoolClient", "acm:ListCertificates", "acm:DescribeCertificate", "iam:ListServerCertificates", "iam:GetServerCertificate", "waf-regional:GetWebACL", "waf-regional:GetWebACLForResource", "waf-regional:AssociateWebACL", "waf-regional:DisassociateWebACL", "wafv2:GetWebACL", "wafv2:GetWebACLForResource", "wafv2:AssociateWebACL", "wafv2:DisassociateWebACL", "shield:GetSubscriptionState", "shield:DescribeProtection", "shield:CreateProtection", "shield:DeleteProtection"]
     resources = ["*"]
@@ -251,15 +251,15 @@ data "aws_iam_policy_document" "aws_lb_controller_policy_document" {
   }
 }
 
-resource "aws_iam_policy" "aws_lb_controller_policy" {
+resource "aws_iam_policy" "aws_lb_controller_asg_policy" {
   name   = "${var.project}-${var.env}-eks-service-account-role-aws-lb-controller-policy"
   path   = "/"
-  policy = data.aws_iam_policy_document.aws_lb_controller_policy_document.json
+  policy = data.aws_iam_policy_document.aws_lb_controller_asg_policy_document.json
 }
 
-resource "aws_iam_role_policy_attachment" "aws_lb_controller_policy_attachment" {
+resource "aws_iam_role_policy_attachment" "aws_lb_controller_asg_policy_attachment" {
   role       = aws_iam_role.aws_lb_controller_role.name
-  policy_arn = aws_iam_policy.aws_lb_controller_policy.arn
+  policy_arn = aws_iam_policy.aws_lb_controller_asg_policy.arn
 }
 
 # External DNS
