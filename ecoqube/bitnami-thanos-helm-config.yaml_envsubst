@@ -2939,7 +2939,7 @@ receive:
       alb.ingress.kubernetes.io/tags: Project=ecoqube-thanos,Env=${TARGET_ENV}
       alb.ingress.kubernetes.io/healthcheck-path: /-/healthy
       alb.ingress.kubernetes.io/healthcheck-port: 10902
-      alb.ingress.kubernetes.io/inbound-cidrs: 45.138.228.108/32, 10.0.0.0/8
+      alb.ingress.kubernetes.io/inbound-cidrs: 45.138.228.108/32, 10.0.0.0/8, 143.177.80.150/32, 90.158.160.3/32
       alb.ingress.kubernetes.io/certificate-arn: ${THANOS_ACM_CERT_ARN}
       external-dns.alpha.kubernetes.io/hostname: ${THANOS_HOSTNAME}
     ## @param receive.ingress.extraHosts The list of additional hostnames to be covered with this ingress record.
