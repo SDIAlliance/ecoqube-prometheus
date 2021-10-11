@@ -7,6 +7,9 @@ Parameters:
   Project:
     Type: String
     Default: ecoqube
+  GithubOrg:
+    Type: String
+    Default: SDIAlliance
   RepoName:
     Type: String
     Default: SDIAlliance/ecoqube-prometheus
@@ -30,7 +33,7 @@ Resources:
                 Ref: GithubOidc
             Condition:
               StringLike:
-                vstoken.actions.githubusercontent.com:sub:
+                token.actions.githubusercontent.com:sub:
                   Fn::Sub: repo:${RepoName}:*
           - Effect: Allow
             Principal:
@@ -127,10 +130,10 @@ Resources:
   GithubOidc:
     Type: AWS::IAM::OIDCProvider
     Properties:
-      Url: https://vstoken.actions.githubusercontent.com
+      Url: https://token.actions.githubusercontent.com
       ThumbprintList: [a031c46782e6e6c662c2c87c76da9aa62ccabd8e]
       ClientIdList:
-        - Fn::Sub: https://github.com/${RepoName}
+        - Fn::Sub: https://github.com/${GithubOrg}
 
   # Terraform State Bucket
   ########################
