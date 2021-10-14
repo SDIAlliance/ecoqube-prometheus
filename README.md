@@ -63,7 +63,7 @@ To configure the Thanos data source in Grafana check the procedure as described 
 
 The password for the Grafana `admin` user should be defined as a SecureString SSM Parameter named: `/ecoqube/<ENV>/env/grafana_admin_password`
 
-The whitelist can be configured through the option `alb.ingress.kubernetes.io/inbound-cidrs` in the Helm config files
+The whitelist can be configured through the variables `grafana_whitelist` and `thanos_whitelist` in the `tf/config/<ENV>.tfvars` config file.
 
 ### Ingress
 

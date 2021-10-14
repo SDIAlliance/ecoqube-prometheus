@@ -443,7 +443,7 @@ ingress:
     alb.ingress.kubernetes.io/target-type: ip
     alb.ingress.kubernetes.io/subnets: ${PUBLIC_SUBNET_1A},${PUBLIC_SUBNET_1B}
     alb.ingress.kubernetes.io/tags: Project=ecoqube-thanos,Env=${TARGET_ENV}
-    alb.ingress.kubernetes.io/inbound-cidrs: 45.138.228.108/32, 10.0.0.0/8, 143.177.80.150/32, 90.158.160.3/32, 77.191.182.113/32
+    alb.ingress.kubernetes.io/inbound-cidrs: ${GRAFANA_WHITELIST}
     alb.ingress.kubernetes.io/success-codes: "302"
     alb.ingress.kubernetes.io/certificate-arn: ${GRAFANA_ACM_CERT_ARN}
     external-dns.alpha.kubernetes.io/hostname: ${GRAFANA_HOSTNAME}

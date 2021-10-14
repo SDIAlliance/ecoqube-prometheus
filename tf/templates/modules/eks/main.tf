@@ -857,7 +857,7 @@ resource "aws_efs_mount_target" "efs_b" {
 
 # Grafana
 resource "aws_acm_certificate" "grafana" {
-  domain_name       = "grafana.eco-qube.eu"
+  domain_name       = var.grafana_hostname
   validation_method = "DNS"
 }
 
@@ -885,7 +885,7 @@ resource "aws_acm_certificate_validation" "grafana" {
 
 # Thanos
 resource "aws_acm_certificate" "thanos" {
-  domain_name       = "thanos.eco-qube.eu"
+  domain_name       = var.thanos_hostname
   validation_method = "DNS"
 }
 

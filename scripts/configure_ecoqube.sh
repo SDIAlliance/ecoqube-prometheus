@@ -6,7 +6,9 @@ GRAFANA_ADMIN_PASSWORD=$(aws ssm get-parameters --region eu-central-1 --name /${
 GRAFANA_ACM_CERT_ARN=$(aws ssm get-parameters --region eu-central-1 --name /${PROJECT}/${TARGET_ENV}/env/grafana_acm_cert_arn --query Parameters[0].Value --output text)
 THANOS_ACM_CERT_ARN=$(aws ssm get-parameters --region eu-central-1 --name /${PROJECT}/${TARGET_ENV}/env/thanos_acm_cert_arn --query Parameters[0].Value --output text)
 GRAFANA_HOSTNAME=$(grep grafana_hostname tf/config/$TARGET_ENV.tfvars | awk -F '"' '{print $2}')
+GRAFANA_WHITELIST=$(grep grafana_whitelist tf/config/$TARGET_ENV.tfvars | awk -F '"' '{print $2}')
 THANOS_HOSTNAME=$(grep thanos_hostname tf/config/$TARGET_ENV.tfvars | awk -F '"' '{print $2}')
+THANOS_WHITELIST=$(grep thanos_whitelist tf/config/$TARGET_ENV.tfvars | awk -F '"' '{print $2}')
 
 export PUBLIC_SUBNET_1A=$PUBLIC_SUBNET_1A
 export PUBLIC_SUBNET_1B=$PUBLIC_SUBNET_1B
@@ -14,7 +16,9 @@ export GRAFANA_ADMIN_PASSWORD=$GRAFANA_ADMIN_PASSWORD
 export GRAFANA_ACM_CERT_ARN=$GRAFANA_ACM_CERT_ARN
 export THANOS_ACM_CERT_ARN=$THANOS_ACM_CERT_ARN
 export GRAFANA_HOSTNAME=$GRAFANA_HOSTNAME
+export GRAFANA_WHITELIST=$GRAFANA_WHITELIST
 export THANOS_HOSTNAME=$THANOS_HOSTNAME
+export THANOS_WHITELIST=$THANOS_WHITELIST
 
 for template in `ls ecoqube/*.yaml_envsubst | cut -d"." -f1`; do
   echo -e "Creating config file from template $template.yaml_envsubst"

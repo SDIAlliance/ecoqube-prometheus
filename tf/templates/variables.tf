@@ -37,6 +37,14 @@ variable "grafana_hostname" {
   type = string
 }
 
+variable "grafana_whitelist" {
+  type = string
+}
+
 variable "thanos_hostname" {
+  type = string
+}
+
+variable "thanos_whitelist" {
   type = string
 }
