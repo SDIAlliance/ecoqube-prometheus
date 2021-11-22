@@ -22,6 +22,15 @@ data:
       username: eks-master
       groups:
         - system:masters
+  mapUsers: |
+    - userarn: arn:aws:iam::${AWS_ACCOUNT_ID}:user/flaviapaganelli
+      username: sdia-admin
+      groups:
+        - system:masters
+    - userarn: arn:aws:iam::${AWS_ACCOUNT_ID}:user/milomilicic
+      username: sdia-admin
+      groups:
+        - system:masters
 
 # eks-developer role
 ####################
