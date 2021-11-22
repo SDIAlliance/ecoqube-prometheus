@@ -30,6 +30,6 @@ kubectl apply -f ecoqube/ecoqube.yaml
 helm repo add bitnami https://charts.bitnami.com/bitnami
 helm repo update
 echo -e "\n--- Deploying Thanos ---\n"
-helm upgrade --install ecoqube-thanos bitnami/thanos -f ecoqube/bitnami-thanos-helm-config.yaml -n ecoqube-${TARGET_ENV} --version 8.0.2
+helm upgrade --install ecoqube-thanos bitnami/thanos -f ecoqube/bitnami-thanos-helm-config.yaml -n ecoqube-${TARGET_ENV} --version 7.1.0
 echo -e "\n--- Deploying Grafana ---\n"
 helm upgrade --install ecoqube-grafana bitnami/grafana -f ecoqube/bitnami-grafana-helm-config.yaml -n ecoqube-${TARGET_ENV}
