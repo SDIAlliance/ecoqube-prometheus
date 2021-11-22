@@ -59,7 +59,7 @@ Helm config files for Thanos and Grafana can be found in `ecoqube/`
 
 All YAML files with suffix `_envsubst` are processed with the `envsubst` utility to substitute environment variables set at build time!
 
-To configure the Thanos data source in Grafana check the procedure as described here: https://docs.bitnami.com/tutorials/create-multi-cluster-monitoring-dashboard-thanos-grafana-prometheus/
+To configure the Thanos data source in Grafana check the procedure as described here: https://docs.bitnami.com/tutorials/create-multi-cluster-monitoring-dashboard-thanos-grafana-prometheus/#step-4-configure-grafana-to-use-thanos-as-a-data-source
 
 The password for the Grafana `admin` user should be defined as a SecureString SSM Parameter named: `/ecoqube/<ENV>/env/grafana_admin_password`
 
