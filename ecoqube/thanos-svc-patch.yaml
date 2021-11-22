@@ -1,0 +1,6 @@
+spec:
+  ports:
+    - name: remote-write
+      port: 19291
+      protocol: TCP
+      targetPort: remote-write
