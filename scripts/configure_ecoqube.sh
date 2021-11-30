@@ -10,6 +10,7 @@ GRAFANA_WHITELIST=$(grep grafana_whitelist tf/config/$TARGET_ENV.tfvars | awk -F
 THANOS_HOSTNAME=$(grep thanos_hostname tf/config/$TARGET_ENV.tfvars | awk -F '"' '{print $2}')
 THANOS_WHITELIST=$(grep thanos_whitelist tf/config/$TARGET_ENV.tfvars | awk -F '"' '{print $2}')
 
+export ENV=$TARGET_ENV
 export PUBLIC_SUBNET_1A=$PUBLIC_SUBNET_1A
 export PUBLIC_SUBNET_1B=$PUBLIC_SUBNET_1B
 export GRAFANA_ADMIN_PASSWORD=$GRAFANA_ADMIN_PASSWORD
