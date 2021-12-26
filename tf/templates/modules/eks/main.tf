@@ -875,7 +875,7 @@ resource "aws_route53_record" "grafana" {
   records         = [each.value.record]
   ttl             = 60
   type            = each.value.type
-  zone_id         = "Z06397711Z24ZEBTADXG"
+  zone_id         = "Z046955624Q2JOSSJ9TE8"
 }
 
 resource "aws_acm_certificate_validation" "grafana" {
@@ -903,7 +903,7 @@ resource "aws_route53_record" "thanos" {
   records         = [each.value.record]
   ttl             = 60
   type            = each.value.type
-  zone_id         = "Z06397711Z24ZEBTADXG"
+  zone_id         = "Z046955624Q2JOSSJ9TE8"
 }
 
 resource "aws_acm_certificate_validation" "thanos" {
