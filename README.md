@@ -40,6 +40,21 @@ The necessary IAM roles, S3 bucket and DynamoDB table are created through Cloudf
 Updates to the Cloudformation stack can be performed using the AWS cli, for example:  
 `aws cloudformation deploy --template ecoqube-github-integration.yaml --stack-name ecoqube-github-integration --capabilities CAPABILITY_NAMED_IAM --region eu-central-1`
 
+##### Updating the Github OIDC thumbprint
+
+1) Get new Github token:
+```
+HOST=$(curl https://token.actions.githubusercontent.com/.well-known/openid-configuration \
+| jq -r '.jwks_uri | split("/")[2]')
+echo | openssl s_client -servername $HOST -showcerts -connect $HOST:443 2> /dev/null \
+| sed -n -e '/BEGIN/h' -e '/BEGIN/,/END/H' -e '$x' -e '$p' | tail +2 \
+| openssl x509 -fingerprint -noout \
+| sed -e "s/.*=//" -e "s/://g" \
+| tr "ABCDEF" "abcdef"
+```
+2) Update value for `GithubThumbprint` in `ecoqube-github-integration.yaml`
+3) Update cloudformation stack as described above
+
 ### Terraform
 
 Terraform variables are defined in `tf/config/<ENV>.tfvars`.
