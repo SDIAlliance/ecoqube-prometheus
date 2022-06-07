@@ -34,4 +34,4 @@ echo -e "\n--- Deploying Thanos ---\n"
 helm upgrade --install ecoqube-thanos bitnami/thanos -f ecoqube/bitnami-thanos-helm-config.yaml -n ecoqube-${TARGET_ENV} --version 8.0.2
 kubectl patch svc ecoqube-thanos-receive --patch "$(cat ecoqube/thanos-svc-patch.yaml)" -n ecoqube-${TARGET_ENV}
 echo -e "\n--- Deploying Grafana ---\n"
-helm upgrade --install ecoqube-grafana bitnami/grafana -f ecoqube/bitnami-grafana-helm-config.yaml -n ecoqube-${TARGET_ENV} --version 8.5.4
+helm upgrade --install ecoqube-grafana bitnami/grafana -f ecoqube/bitnami-grafana-helm-config.yaml -n ecoqube-${TARGET_ENV} --version 7.9.5
