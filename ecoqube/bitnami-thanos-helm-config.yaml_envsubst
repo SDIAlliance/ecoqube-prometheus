@@ -507,7 +507,7 @@ query:
   ingress:
     ## @param query.ingress.enabled Enable ingress controller resource
     ##
-    enabled: true
+    enabled: false
     ## @param query.ingress.hostname Default host for the ingress resource
     ##
     hostname: thanos.local
