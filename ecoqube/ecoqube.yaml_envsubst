@@ -17,7 +17,7 @@ data:
     enabled = true
     
     # specify organization name that should be used for unauthenticated users
-    org_name = Public
+    org_name = SDIA
     
     # specify role for unauthenticated users
     org_role = Viewer
