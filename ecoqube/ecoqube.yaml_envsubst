@@ -24,3 +24,6 @@ data:
     
     # mask the Grafana version number for unauthenticated users
     hide_version = true
+    
+    [feature_toggles]
+    publicDashboards = true
