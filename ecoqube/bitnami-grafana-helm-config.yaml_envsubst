@@ -126,7 +126,9 @@ ldap:
 ##  - name: GF_DEFAULT_INSTANCE_NAME
 ##    value: my-instance
 ##
-extraEnvVars: {}
+extraEnvVars: 
+  - name: GF_FEATURE_TOGGLES_ENABLE
+    value: publicDashboards
 ## @param extraConfigmaps Array to mount extra ConfigMaps to configure Grafana
 ## For example:
 ## extraConfigmaps:
@@ -143,7 +145,7 @@ extraConfigmaps: {}
 ## @param config.grafanaIniSecret Name of the Secret containing the `grafana.ini` file
 ##
 config:
-  useGrafanaIniFile: true
+  useGrafanaIniFile: false
   grafanaIniConfigMap: "grafanaini"
   grafanaIniSecret: ""
 ## Create dasboard provider to load dashboards, a default one is created to load dashboards
