@@ -4,26 +4,3 @@ metadata:
   name: ecoqube-${TARGET_ENV}
   labels:
     name: ecoqube-${TARGET_ENV}
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: grafanaini
-data:
-  grafana.ini: |-
-    #################################### Anonymous Auth ######################
-    [auth.anonymous]
-    # enable anonymous access
-    enabled = true
-    
-    # specify organization name that should be used for unauthenticated users
-    org_name = SDIA
-    
-    # specify role for unauthenticated users
-    org_role = Viewer
-    
-    # mask the Grafana version number for unauthenticated users
-    hide_version = true
-    
-    [feature_toggles]
-    publicDashboards = true
