@@ -1,11 +1,11 @@
 # https://docs.aws.amazon.com/eks/latest/userguide/aws-load-balancer-controller.html
-# https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.2.0/docs/install/v2_2_0_full.yaml
+# https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.6.2/docs/install/v2_6_2_full.yaml
 
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.5.0
+    controller-gen.kubebuilder.io/version: v0.11.1
   creationTimestamp: null
   labels:
     app.kubernetes.io/name: aws-load-balancer-controller
@@ -65,6 +65,12 @@ spec:
                 required:
                 - name
                 type: object
+              inboundCIDRs:
+                description: InboundCIDRs specifies the CIDRs that are allowed to
+                  access the Ingresses that belong to IngressClass with this IngressClassParams.
+                items:
+                  type: string
+                type: array
               ipAddressType:
                 description: IPAddressType defines the ip address type for all Ingresses
                   that belong to IngressClass with this IngressClassParams.
@@ -72,6 +78,24 @@ spec:
                 - ipv4
                 - dualstack
                 type: string
+              loadBalancerAttributes:
+                description: LoadBalancerAttributes define the custom attributes to
+                  LoadBalancers for all Ingress that that belong to IngressClass with
+                  this IngressClassParams.
+                items:
+                  description: Attributes defines custom attributes on resources.
+                  properties:
+                    key:
+                      description: The key of the attribute.
+                      type: string
+                    value:
+                      description: The value of the attribute.
+                      type: string
+                  required:
+                  - key
+                  - value
+                  type: object
+                type: array
               namespaceSelector:
                 description: NamespaceSelector restrict the namespaces of Ingresses
                   that are allowed to specify the IngressClass with this IngressClassParams.
@@ -118,6 +142,7 @@ spec:
                       are ANDed.
                     type: object
                 type: object
+                x-kubernetes-map-type: atomic
               scheme:
                 description: Scheme defines the scheme for all Ingresses that belong
                   to IngressClass with this IngressClassParams.
@@ -125,6 +150,34 @@ spec:
                 - internal
                 - internet-facing
                 type: string
+              sslPolicy:
+                description: SSLPolicy specifies the SSL Policy for all Ingresses
+                  that belong to IngressClass with this IngressClassParams.
+                type: string
+              subnets:
+                description: Subnets defines the subnets for all Ingresses that belong
+                  to IngressClass with this IngressClassParams.
+                properties:
+                  ids:
+                    description: IDs specify the resource IDs of subnets. Exactly
+                      one of this or `tags` must be specified.
+                    items:
+                      description: SubnetID specifies a subnet ID.
+                      pattern: subnet-[0-9a-f]+
+                      type: string
+                    minItems: 1
+                    type: array
+                  tags:
+                    additionalProperties:
+                      items:
+                        type: string
+                      type: array
+                    description: Tags specifies subnets in the load balancer's VPC
+                      where each tag specified in the map key contains one of the
+                      values in the corresponding value list. Exactly one of this
+                      or `ids` must be specified.
+                    type: object
+                type: object
               tags:
                 description: Tags defines list of Tags on AWS resources provisioned
                   for Ingresses that belong to IngressClass with this IngressClassParams.
@@ -147,18 +200,12 @@ spec:
     served: true
     storage: true
     subresources: {}
-status:
-  acceptedNames:
-    kind: ""
-    plural: ""
-  conditions: []
-  storedVersions: []
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.5.0
+    controller-gen.kubebuilder.io/version: v0.11.1
   creationTimestamp: null
   labels:
     app.kubernetes.io/name: aws-load-balancer-controller
@@ -372,6 +419,13 @@ spec:
           spec:
             description: TargetGroupBindingSpec defines the desired state of TargetGroupBinding
             properties:
+              ipAddressType:
+                description: ipAddressType specifies whether the target group is of
+                  type IPv4 or IPv6. If unspecified, it will be automatically inferred.
+                enum:
+                - ipv4
+                - ipv6
+                type: string
               networking:
                 description: networking defines the networking rules to allow ELBV2
                   LoadBalancer to access targets in TargetGroup.
@@ -494,6 +548,7 @@ spec:
                       are ANDed.
                     type: object
                 type: object
+                x-kubernetes-map-type: atomic
               serviceRef:
                 description: serviceRef is a reference to a Kubernetes Service and
                   ServicePort.
@@ -514,6 +569,7 @@ spec:
               targetGroupARN:
                 description: targetGroupARN is the Amazon Resource Name (ARN) for
                   the TargetGroup.
+                minLength: 1
                 type: string
               targetType:
                 description: targetType is the TargetType of TargetGroup. If unspecified,
@@ -539,12 +595,6 @@ spec:
     storage: true
     subresources:
       status: {}
-status:
-  acceptedNames:
-    kind: ""
-    plural: ""
-  conditions: []
-  storedVersions: []
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -554,8 +604,6 @@ metadata:
     app.kubernetes.io/name: aws-load-balancer-controller
   name: aws-load-balancer-controller
   namespace: kube-system
-  annotations:
-    eks.amazonaws.com/role-arn: arn:aws:iam::${AWS_ACCOUNT_ID}:role/ecoqube-${TARGET_ENV}-eks-service-account-role-aws-lb-controller
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
@@ -577,6 +625,22 @@ rules:
   - aws-load-balancer-controller-leader
   resources:
   - configmaps
+  verbs:
+  - get
+  - update
+  - patch
+- apiGroups:
+  - coordination.k8s.io
+  resources:
+  - leases
+  verbs:
+  - create
+- apiGroups:
+  - coordination.k8s.io
+  resourceNames:
+  - aws-load-balancer-controller-leader
+  resources:
+  - leases
   verbs:
   - get
   - update
@@ -639,14 +703,6 @@ rules:
 - apiGroups:
   - ""
   resources:
-  - secrets
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - ""
-  resources:
   - services
   verbs:
   - get
@@ -661,6 +717,14 @@ rules:
   verbs:
   - patch
   - update
+- apiGroups:
+  - discovery.k8s.io
+  resources:
+  - endpointslices
+  verbs:
+  - get
+  - list
+  - watch
 - apiGroups:
   - elbv2.k8s.aws
   resources:
@@ -799,9 +863,9 @@ spec:
     spec:
       containers:
       - args:
-        - --cluster-name=shared-cluster
+        - --cluster-name=your-cluster-name
         - --ingress-class=alb
-        image: amazon/aws-alb-ingress-controller:v2.2.0
+        image: public.ecr.aws/eks/aws-load-balancer-controller:v2.6.2
         livenessProbe:
           failureThreshold: 2
           httpGet:
@@ -841,7 +905,7 @@ spec:
           defaultMode: 420
           secretName: aws-load-balancer-webhook-tls
 ---
-apiVersion: cert-manager.io/v1alpha2
+apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   labels:
@@ -857,7 +921,7 @@ spec:
     name: aws-load-balancer-selfsigned-issuer
   secretName: aws-load-balancer-webhook-tls
 ---
-apiVersion: cert-manager.io/v1alpha2
+apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
   labels:
@@ -876,6 +940,31 @@ metadata:
     app.kubernetes.io/name: aws-load-balancer-controller
   name: aws-load-balancer-webhook
 webhooks:
+- admissionReviewVersions:
+  - v1beta1
+  clientConfig:
+    service:
+      name: aws-load-balancer-webhook-service
+      namespace: kube-system
+      path: /mutate-v1-service
+  failurePolicy: Fail
+  name: mservice.elbv2.k8s.aws
+  objectSelector:
+    matchExpressions:
+    - key: app.kubernetes.io/name
+      operator: NotIn
+      values:
+      - aws-load-balancer-controller
+  rules:
+  - apiGroups:
+    - ""
+    apiVersions:
+    - v1
+    operations:
+    - CREATE
+    resources:
+    - services
+  sideEffects: None
 - admissionReviewVersions:
   - v1beta1
   clientConfig:
@@ -943,6 +1032,32 @@ webhooks:
     service:
       name: aws-load-balancer-webhook-service
       namespace: kube-system
+      path: /validate-elbv2-k8s-aws-v1beta1-ingressclassparams
+  failurePolicy: Fail
+  name: vingressclassparams.elbv2.k8s.aws
+  objectSelector:
+    matchExpressions:
+    - key: app.kubernetes.io/name
+      operator: NotIn
+      values:
+      - aws-load-balancer-controller
+  rules:
+  - apiGroups:
+    - elbv2.k8s.aws
+    apiVersions:
+    - v1beta1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - ingressclassparams
+  sideEffects: None
+- admissionReviewVersions:
+  - v1beta1
+  clientConfig:
+    service:
+      name: aws-load-balancer-webhook-service
+      namespace: kube-system
       path: /validate-elbv2-k8s-aws-v1beta1-targetgroupbinding
   failurePolicy: Fail
   name: vtargetgroupbinding.elbv2.k8s.aws
@@ -963,7 +1078,7 @@ webhooks:
     service:
       name: aws-load-balancer-webhook-service
       namespace: kube-system
-      path: /validate-networking-v1beta1-ingress
+      path: /validate-networking-v1-ingress
   failurePolicy: Fail
   matchPolicy: Equivalent
   name: vingress.elbv2.k8s.aws
@@ -971,7 +1086,7 @@ webhooks:
   - apiGroups:
     - networking.k8s.io
     apiVersions:
-    - v1beta1
+    - v1
     operations:
     - CREATE
     - UPDATE
