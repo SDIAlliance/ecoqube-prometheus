@@ -3,7 +3,7 @@ name: deploy-to-aws
 on:
   push:
     branches:
-      - master
+      - dev
   workflow_dispatch:
 
 jobs:
@@ -43,7 +43,7 @@ jobs:
       - name: Configure Terraform env
         run: |
           PROJECT=ecoqube
-          TARGET_ENV=prd
+          TARGET_ENV=dev
           KUBERNETES_VERSION=$(grep kubernetes_version tf/config/$TARGET_ENV.tfvars | awk -F '"' '{print $2}')
           EKS_AMI_ID=$(aws ssm get-parameters --region eu-central-1 --name /aws/service/eks/optimized-ami/${KUBERNETES_VERSION}/amazon-linux-2/recommended/image_id --query Parameters[0].Value --output text)
           echo "TF_IN_AUTOMATION=1" >> $GITHUB_ENV
