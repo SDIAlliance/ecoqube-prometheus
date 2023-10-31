@@ -520,6 +520,28 @@ data "aws_iam_policy_document" "assume_role_policy" {
   }
 }
 
+data "aws_iam_policy_document" "nodes" {
+  statement {
+    actions = [
+      "autoscaling:DescribeAutoScalingInstances"
+    ]
+    resources = [
+      "*"
+    ]
+  }
+}
+
+resource "aws_iam_policy" "nodes" {
+  name   = "${var.project}-${var.env}-eks-nodes-policy"
+  path   = "/"
+  policy = data.aws_iam_policy_document.nodes.json
+}
+
+resource "aws_iam_role_policy_attachment" "nodes" {
+  role       = aws_iam_role.nodes.name
+  policy_arn = aws_iam_policy.nodes.arn
+}
+
 resource "aws_iam_role" "nodes" {
   name               = "${var.project}-${var.env}-eks-node-role"
   path               = "/"
@@ -544,6 +566,11 @@ resource "aws_iam_role_policy_attachment" "nodes-AmazonEC2ContainerRegistryReadO
 resource "aws_iam_role_policy_attachment" "nodes-AmazonEKS_CNI_Policy" {
   role       = aws_iam_role.nodes.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
+}
+
+resource "aws_iam_role_policy_attachment" "nodes-AmazonSSMManagedInstanceCore" {
+  role       = aws_iam_role.nodes.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
 
 # Launch Template
