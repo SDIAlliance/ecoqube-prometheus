@@ -1,7 +1,7 @@
 project                           = "ecoqube"
 env                               = "dev"
 kubernetes_version                = "1.23"
-enable_eks_addons                 = false  # Should be set to false when initially creating the cluster
+enable_eks_addons                 = true  # Should be set to false when initially creating the cluster
 aws_eks_addon_version_kube_proxy  = "v1.23.16-eksbuild.2"
 aws_eks_addon_version_coredns     = "v1.8.7-eksbuild.7"
 aws_eks_addon_version_vpc_cni     = "v1.15.1-eksbuild.1"
