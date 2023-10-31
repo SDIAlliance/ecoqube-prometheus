@@ -201,7 +201,7 @@ resource "aws_iam_role" "cluster_autoscaler_role" {
 
 data "aws_iam_policy_document" "cluster_autoscaler_asg_policy_document" {
   statement {
-    actions   = ["autoscaling:Describe*", "autoscaling:SetDesiredCapacity", "autoscaling:TerminateInstanceInAutoScalingGroup", "ec2:DescribeLaunchTemplateVersions"]
+    actions   = ["autoscaling:Describe*", "autoscaling:SetDesiredCapacity", "autoscaling:TerminateInstanceInAutoScalingGroup", "ec2:DescribeLaunchTemplateVersions", "ec2:DescribeInstanceTypes"]
     resources = ["*"]
     effect    = "Allow"
   }
