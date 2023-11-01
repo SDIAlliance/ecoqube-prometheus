@@ -338,7 +338,7 @@ resource "aws_iam_role" "efs_csi_controller_role" {
 
 data "aws_iam_policy_document" "efs_csi_controller_asg_policy_document" {
   statement {
-    actions   = ["elasticfilesystem:DescribeAccessPoints", "elasticfilesystem:DescribeFileSystems"]
+    actions   = ["elasticfilesystem:DescribeAccessPoints", "elasticfilesystem:DescribeFileSystems", "elasticfilesystem:DescribeMountTargets", "ec2:DescribeAvailabilityZones"]
     resources = ["*"]
     effect    = "Allow"
   }
@@ -354,6 +354,16 @@ data "aws_iam_policy_document" "efs_csi_controller_asg_policy_document" {
   }
   statement {
     actions   = ["elasticfilesystem:CreateAccessPoint"]
+    resources = ["*"]
+    effect    = "Allow"
+    condition {
+      test     = "StringLike"
+      variable = "aws:RequestTag/efs.csi.aws.com/cluster"
+      values   = ["true"]
+    }
+  }
+  statement {
+    actions   = ["elasticfilesystem:TagResource"]
     resources = ["*"]
     effect    = "Allow"
     condition {
