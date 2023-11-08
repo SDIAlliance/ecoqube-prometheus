@@ -33,6 +33,8 @@ case $cmd in
     unset KUBECONFIG
     account_id=$(aws sts get-caller-identity --output text --query 'Account')
 
+    echo $account_id
+
     kubectl_role=$(aws sts assume-role --role-arn "arn:aws:iam::${account_id}:role/ecoqube-github-integration-role" --role-session-name "kubectl-session")
 
     cluster_config=$(echo $AWS_PROFILE | cut -d- -f2,3)

@@ -21,7 +21,7 @@ variable "instance_type" {
 
 variable "use_spot_instances" {
   type    = bool
-  default = false
+  default = true
 }
 
 variable "asg_min_instances" {

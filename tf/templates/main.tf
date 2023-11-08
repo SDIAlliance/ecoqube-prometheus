@@ -18,7 +18,7 @@ module "vpc" {
   private_subnets         = ["${var.cidr_blocks_prefix[var.env]}.1.0/24", "${var.cidr_blocks_prefix[var.env]}.2.0/24"]
   one_nat_gateway_per_az  = true
   enable_nat_gateway      = true
-  single_nat_gateway      = false
+  single_nat_gateway      = true
   public_subnet_tags = {
     Terraform                = "true"
     Project                  = var.project
