@@ -43,7 +43,7 @@ resource "aws_iam_role_policy_attachment" "cluster-AmazonEKSVPCResourceControlle
 ###################
 resource "aws_cloudwatch_log_group" "cluster" {
   name              = "/aws/eks/${var.project}-${var.env}-cluster/cluster"
-  retention_in_days = 2
+  retention_in_days = 1
 }
 
 # Cluster Security Group
