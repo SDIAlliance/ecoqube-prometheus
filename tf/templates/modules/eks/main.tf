@@ -672,9 +672,6 @@ resource "aws_autoscaling_group" "nodes" {
     }
   }
 
-  metrics_granularity = "1Minute"
-  enabled_metrics     = ["GroupDesiredCapacity", "GroupInServiceCapacity", "GroupPendingCapacity", "GroupMinSize", "GroupMaxSize", "GroupInServiceInstances", "GroupPendingInstances", "GroupStandbyInstances", "GroupStandbyCapacity", "GroupTerminatingCapacity", "GroupTerminatingInstances", "GroupTotalCapacity", "GroupTotalInstances"]
-
   health_check_grace_period = 300
   health_check_type         = "EC2"
   # min_elb_capacity          = var.asg_enable_min_elb_capacity ? var.asg_min_instances : 0
