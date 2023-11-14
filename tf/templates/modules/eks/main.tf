@@ -43,7 +43,7 @@ resource "aws_iam_role_policy_attachment" "cluster-AmazonEKSVPCResourceControlle
 ###################
 resource "aws_cloudwatch_log_group" "cluster" {
   name              = "/aws/eks/${var.project}-${var.env}-cluster/cluster"
-  retention_in_days = 7
+  retention_in_days = 1
 }
 
 # Cluster Security Group
@@ -111,7 +111,6 @@ resource "aws_eks_cluster" "cluster" {
     endpoint_public_access  = true
     security_group_ids      = [aws_security_group.cluster.id]
   }
-  enabled_cluster_log_types = ["api", "audit", "authenticator", "controllerManager", "scheduler"]
 
   # Ensure that IAM Role permissions are created before and deleted after EKS Cluster handling.
   # Otherwise, EKS will not be able to properly delete EKS managed EC2 infrastructure such as Security Groups.
@@ -635,9 +634,6 @@ resource "aws_autoscaling_group" "nodes" {
       spot_instance_pools                      = 10
     }
   }
-
-  metrics_granularity = "1Minute"
-  enabled_metrics     = ["GroupDesiredCapacity", "GroupInServiceCapacity", "GroupPendingCapacity", "GroupMinSize", "GroupMaxSize", "GroupInServiceInstances", "GroupPendingInstances", "GroupStandbyInstances", "GroupStandbyCapacity", "GroupTerminatingCapacity", "GroupTerminatingInstances", "GroupTotalCapacity", "GroupTotalInstances"]
 
   health_check_grace_period = 300
   health_check_type         = "EC2"
