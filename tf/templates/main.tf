@@ -14,12 +14,14 @@ module "vpc" {
   azs                     = ["eu-central-1a", "eu-central-1b"]
   map_public_ip_on_launch = false
   enable_dns_hostnames    = true
-  public_subnets          = ["${var.cidr_blocks_prefix[var.env]}.101.0/24", "${var.cidr_blocks_prefix[var.env]}.102.0/24"]
+  public_subnets          = [
+    "${var.cidr_blocks_prefix[var.env]}.101.0/24", "${var.cidr_blocks_prefix[var.env]}.102.0/24"
+  ]
   private_subnets         = ["${var.cidr_blocks_prefix[var.env]}.1.0/24", "${var.cidr_blocks_prefix[var.env]}.2.0/24"]
   one_nat_gateway_per_az  = true
   enable_nat_gateway      = true
   single_nat_gateway      = true
-  public_subnet_tags = {
+  public_subnet_tags      = {
     Terraform                = "true"
     Project                  = var.project
     Environment              = var.env
@@ -55,5 +57,7 @@ module "eks" {
   private_subnets                  = module.vpc.private_subnets
   grafana_hostname                 = var.grafana_hostname
   thanos_hostname                  = var.thanos_hostname
+  weekdays_only                    = var.weekdays_only
+  asg_min_instances                = var.asg_min_instances
 }
 
