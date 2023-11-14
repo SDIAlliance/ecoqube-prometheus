@@ -48,3 +48,13 @@ variable "thanos_hostname" {
 variable "thanos_whitelist" {
   type = string
 }
+
+variable "weekdays_only" {
+  type    = bool
+  default = false
+}
+
+variable "asg_min_instances" {
+  type    = string
+  default = "2"
+}
