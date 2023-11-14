@@ -75,3 +75,7 @@ variable "thanos_hostname" {
   type = string
 }
 
+variable "weekdays_only" {
+  type    = bool
+  default = false
+}

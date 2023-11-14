@@ -722,6 +722,29 @@ resource "aws_autoscaling_group" "nodes" {
 
 }
 
+# Scheduled actions
+###################
+resource "aws_autoscaling_schedule" "weekdays_only_up" {
+  count                  = var.weekdays_only ? 1 : 0
+  scheduled_action_name  = "weekdays_only_up"
+  max_size               = var.asg_max_instances
+  min_size               = var.asg_min_instances
+  desired_capacity       = var.asg_min_instances
+  autoscaling_group_name = aws_autoscaling_group.nodes.name
+  recurrence             = "0 7 * * 1-5"
+  time_zone              = "Europe/Amsterdam"
+}
+resource "aws_autoscaling_schedule" "weekdays_only_down" {
+  count                  = var.weekdays_only ? 1 : 0
+  scheduled_action_name  = "weekdays_only_down"
+  max_size               = 0
+  min_size               = 0
+  desired_capacity       = 0
+  autoscaling_group_name = aws_autoscaling_group.nodes.name
+  recurrence             = "0 19 * * 1-5"
+  time_zone              = "Europe/Amsterdam"
+}
+
 ############################################################################################################
 # Management IAM Roles
 #############################################################################################################
