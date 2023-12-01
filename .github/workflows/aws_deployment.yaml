@@ -74,16 +74,16 @@ jobs:
         id: apply
         run: |
           cd tf/templates
-          terraform apply -input=false -auto-approve tfplan
+          # terraform apply -input=false -auto-approve tfplan
           # UNCOMMENTING THE LINE BELOW _WILL_ DESTROY YOUR INFRASTRUCTURE!
-          # terraform destroy -input=false -auto-approve -var image_id=$EKS_AMI_ID -var kubernetes_version=$KUBERNETES_VERSION -var-file=../config/$TARGET_ENV.tfvars
+          terraform destroy -input=false -auto-approve -var image_id=$EKS_AMI_ID -var kubernetes_version=$KUBERNETES_VERSION -var-file=../config/$TARGET_ENV.tfvars
 
-      - name: Configure EKS Cluster
-        timeout-minutes: 30
-        run: |
-          ./scripts/configure_cluster.sh
+      # - name: Configure EKS Cluster
+      #   timeout-minutes: 30
+      #   run: |
+      #     ./scripts/configure_cluster.sh
 
-      - name: Deploy Ecoqube components
-        timeout-minutes: 30
-        run: |
-          ./scripts/configure_ecoqube.sh
+      # - name: Deploy Ecoqube components
+      #   timeout-minutes: 30
+      #   run: |
+      #     ./scripts/configure_ecoqube.sh
