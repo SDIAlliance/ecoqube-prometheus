@@ -1,10 +1,10 @@
 # .github/workflows/aws_deployment.yaml
 name: deploy-to-aws
-on:
-  push:
-    branches:
-      - dev
-  workflow_dispatch:
+# on:
+#   push:
+#     branches:
+#       - dev
+#   workflow_dispatch:
 
 jobs:
   build:
@@ -76,7 +76,7 @@ jobs:
           cd tf/templates
           # terraform apply -input=false -auto-approve tfplan
           # UNCOMMENTING THE LINE BELOW _WILL_ DESTROY YOUR INFRASTRUCTURE!
-          terraform destroy -input=false -auto-approve -var image_id=$EKS_AMI_ID -var kubernetes_version=$KUBERNETES_VERSION -var-file=../config/$TARGET_ENV.tfvars
+          # terraform destroy -input=false -auto-approve -var image_id=$EKS_AMI_ID -var kubernetes_version=$KUBERNETES_VERSION -var-file=../config/$TARGET_ENV.tfvars
 
       # - name: Configure EKS Cluster
       #   timeout-minutes: 30
