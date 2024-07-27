@@ -9,6 +9,9 @@ then
 elif [[ $KUBERNETES_VERSION == 1.21 ]]
 then
   export CLUSTER_AUTOSCALER_VERSION=v1.21.0
+elif [[ $KUBERNETES_VERSION == 1.28 ]]
+then
+  export CLUSTER_AUTOSCALER_VERSION=v1.28.0
 else
   echo "Error: no versions defined for Kubernetes $KUBERNETES_VERSION"
   exit 1
